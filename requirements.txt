@@ -1,0 +1,12 @@
+# Google AI and Gmail API dependencies
+google-generativeai==0.8.3
+google-api-python-client==2.154.0
+google-auth>=2.46.0,<3.0.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.1
+
+# AWS SES for sending emails
+boto3==1.35.93
+
+# Additional dependencies
+urllib3>=2.0.0,<3.0.0
