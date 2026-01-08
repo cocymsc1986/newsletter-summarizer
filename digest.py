@@ -114,8 +114,10 @@ def summarize_emails_with_gemini(emails, api_key):
 
     prompt = f"""You are a helpful assistant that summarizes newsletter emails.
 Below are {len(emails)} emails from the last 24 hours. Please provide a concise summary of the key information,
-organized by topic or theme. Focus on actionable insights and important updates.
+organized by topic or theme. Focus on actionable insights and important updates. If possible, provide links to the sources for
+further reading. If you have the ability, visit the links to extract more context before summarizing.
 
+The days emails are as follows:
 {emails_text}
 
 Please provide a well-organized summary with clear sections and bullet points."""
