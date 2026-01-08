@@ -1,0 +1,13 @@
+# Copy this file to terraform.tfvars and fill in your actual values
+# terraform.tfvars is gitignored for security
+
+# AWS Region where SES is available (us-east-1, us-west-2, eu-west-1, etc.)
+aws_region = "us-east-1"
+
+# Email that will be used to SEND the digest (must be a valid email you control)
+# This will be verified in AWS SES
+sender_email = "your-source-email@example.com"
+
+# Email that will RECEIVE the digest
+# This must be verified in AWS SES if your account is in sandbox mode
+destination_email = "your-destination-email@example.com"

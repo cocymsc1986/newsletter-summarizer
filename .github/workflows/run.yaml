@@ -1,0 +1,41 @@
+# .github/workflows/run.yaml
+name: Daily Newsletter Digest
+
+on:
+  schedule:
+    # Run daily at 8:00 AM UTC
+    - cron: "0 8 * * *"
+  workflow_dispatch: # Manual trigger for testing
+
+jobs:
+  run-digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Digest Script
+        env:
+          # Gemini AI API Key
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # Gmail OAuth token (base64 encoded)
+          GMAIL_TOKEN_B64: ${{ secrets.GMAIL_TOKEN_B64 }}
+          # AWS credentials for SES
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          # Email addresses
+          SOURCE_EMAIL: ${{ secrets.SOURCE_EMAIL }}
+          DESTINATION_EMAIL: ${{ secrets.DESTINATION_EMAIL }}
+        run: python digest.py
