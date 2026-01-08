@@ -101,10 +101,10 @@ def extract_body(payload):
 def summarize_emails_with_gemini(emails, api_key):
     """Use Gemini API to summarize the emails."""
     if not emails:
-        return "No emails to summarize."
+        raise ValueError("No emails to summarize")
 
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-pro")
+    model = genai.GenerativeModel("gemini-1.5-flash")
 
     # Build the prompt
     emails_text = "\n\n".join([
@@ -120,12 +120,8 @@ organized by topic or theme. Focus on actionable insights and important updates.
 
 Please provide a well-organized summary with clear sections and bullet points."""
 
-    try:
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        print(f"Error generating summary: {e}")
-        return f"Failed to generate summary. Processed {len(emails)} emails."
+    response = model.generate_content(prompt)
+    return response.text
 
 
 def mark_emails_as_read(service, email_ids):
@@ -229,28 +225,34 @@ def main():
         emails = get_unread_emails(gmail_service)
 
         if not emails:
-            print("No unread emails found. Exiting.")
+            print("No unread emails found. Nothing to do. Exiting successfully.")
             return
 
         print(f"Found {len(emails)} unread emails.")
 
         # Generate summary
         print("Generating summary with Gemini AI...")
-        summary = summarize_emails_with_gemini(emails, gemini_api_key)
+        try:
+            summary = summarize_emails_with_gemini(emails, gemini_api_key)
+            print("Summary generated successfully.")
+        except Exception as e:
+            print(f"Failed to generate summary: {e}")
+            print("Aborting. Emails will remain unread.")
+            sys.exit(1)
 
         # Send summary email
         print("Sending digest email...")
         success = send_summary_email(summary, source_email, destination_email, aws_region)
 
-        if success:
-            # Mark emails as read
-            print("Marking emails as read...")
-            email_ids = [email["id"] for email in emails]
-            mark_emails_as_read(gmail_service, email_ids)
-            print("Digest completed successfully!")
-        else:
-            print("Failed to send digest email. Emails not marked as read.")
+        if not success:
+            print("Failed to send digest email. Aborting. Emails will remain unread.")
             sys.exit(1)
+
+        # Mark emails as read only after successful email send
+        print("Marking emails as read...")
+        email_ids = [email["id"] for email in emails]
+        mark_emails_as_read(gmail_service, email_ids)
+        print("Digest completed successfully!")
 
     except Exception as e:
         print(f"Error during execution: {e}")

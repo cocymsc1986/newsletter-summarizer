@@ -172,7 +172,7 @@ schedule:
 
 - Verify API key is valid
 - Check quota limits in Google AI Studio
-- Ensure the model name is correct (currently using `gemini-pro`)
+- Ensure the model name is correct (currently using `gemini-1.5-flash`)
 
 ## Project Structure
 
