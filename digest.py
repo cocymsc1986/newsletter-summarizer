@@ -120,7 +120,9 @@ further reading. If you have the ability, visit the links to extract more contex
 The days emails are as follows:
 {emails_text}
 
-Please provide a well-organized summary with clear sections and bullet points."""
+Please provide a well-organized summary with clear sections and bullet points.
+
+This will be sent as a daily digest email, so format the output accordingly, preferably in html."""
 
     response = model.generate_content(prompt)
     return response.text
