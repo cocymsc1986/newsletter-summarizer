@@ -9,29 +9,29 @@ import os
 import sys
 import base64
 import json
-from datetime import datetime, timedelta
+import boto3
+import google.generativeai as genai
+from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-import boto3
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-import google.generativeai as genai
+from google.auth.transport.requests import Request
+    
+def get_gmail_service():    
+    # 1. Load the token data from secrets
+    token_json = json.loads(base64.b64decode(os.environ["GMAIL_TOKEN_B64"]))
+    creds = Credentials.from_authorized_user_info(token_json)
 
-
-def load_gmail_credentials():
-    """Load Gmail OAuth credentials from base64-encoded environment variable."""
-    token_b64 = os.environ.get("GMAIL_TOKEN_B64")
-    if not token_b64:
-        raise ValueError("GMAIL_TOKEN_B64 environment variable not set")
-
-    try:
-        token_json = base64.b64decode(token_b64).decode("utf-8")
-        token_data = json.loads(token_json)
-        return Credentials.from_authorized_user_info(token_data)
-    except Exception as e:
-        raise ValueError(f"Failed to decode Gmail credentials: {e}")
+    # 2. If the access token is expired, use the refresh token to get a new one
+    if creds and creds.expired and creds.refresh_token:
+        print("Refreshing access token...")
+        # This update happens in-memory for this specific GH Action run
+        creds.refresh(Request())
+    
+    return build('gmail', 'v1', credentials=creds)
 
 
 def get_unread_emails(service, max_results=50):
@@ -221,8 +221,10 @@ def main():
     try:
         # Load Gmail credentials and build service
         print("Connecting to Gmail...")
-        creds = load_gmail_credentials()
-        gmail_service = build("gmail", "v1", credentials=creds)
+        # creds = load_gmail_credentials()
+        # gmail_service = build("gmail", "v1", credentials=creds)
+
+        gmail_service = get_gmail_service()
 
         # Fetch unread emails
         print("Fetching unread emails...")

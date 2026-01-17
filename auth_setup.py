@@ -10,7 +10,7 @@ def generate_token():
     flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
     
     # This opens your browser for a one-time login
-    creds = flow.run_local_server(port=0)
+    creds = flow.run_local_server(port=0, access_type='offline', prompt='consent')
     
     # Save the token to a file
     with open('token.json', 'w') as token:
